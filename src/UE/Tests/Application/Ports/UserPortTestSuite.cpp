@@ -109,4 +109,51 @@ TEST_F(UserPortTestSuite, shallComposeSmsAndSend)
     acceptCallback();
 }
 
+TEST_F(UserPortTestSuite, shallShowNewSms)
+{
+    EXPECT_CALL(guiMock, showNewSms(true));
+    objectUnderTest.showNewSms();
+}
+
+TEST_F(UserPortTestSuite, shallReturnPhoneNumber)
+{
+    EXPECT_EQ(objectUnderTest.getPhoneNumber(), PHONE_NUMBER);
+}
+
+TEST_F(UserPortTestSuite, shallStartDial)
+{
+    StrictMock<IDialModeMock> dialModeMock;
+    EXPECT_CALL(guiMock, setDialMode()).WillOnce(ReturnRef(dialModeMock));
+    EXPECT_CALL(guiMock, setAcceptCallback(_));
+    EXPECT_CALL(guiMock, setRejectCallback(_));
+
+    objectUnderTest.startDial();
+}
+
+TEST_F(UserPortTestSuite, shallShowDialingAndCancel)
+{
+    StrictMock<ITextModeMock> alertModeMock;
+    EXPECT_CALL(guiMock, setAlertMode()).WillOnce(ReturnRef(alertModeMock));
+    EXPECT_CALL(alertModeMock, setText("Dialing..."));
+    EXPECT_CALL(guiMock, setRejectCallback(_)).WillOnce(Invoke([this](auto cb) {
+        cb();
+    }));
+    EXPECT_CALL(handlerMock, cancelCallRequest());
+
+    objectUnderTest.showDialing();
+}
+
+// ShowTalking is to change anyways - Receive Call part.
+
+TEST_F(UserPortTestSuite, shallShowPartnerNotAvailable)
+{
+    StrictMock<ITextModeMock> modeMock;
+    EXPECT_CALL(guiMock, setAlertMode()).WillOnce(ReturnRef(modeMock));
+    EXPECT_CALL(modeMock, setText("Partner is not available."));
+    EXPECT_CALL(guiMock, setRejectCallback(_));
+    EXPECT_CALL(guiMock, setAcceptCallback(_));
+
+    objectUnderTest.showPartnerNotAvailable();
+}
+
 }
