@@ -6,6 +6,9 @@
 
 namespace ue {
 
+template<bool VAL>
+constexpr bool isRead = VAL;
+
 class SmsEntity {
 public:
   std::uint8_t from;

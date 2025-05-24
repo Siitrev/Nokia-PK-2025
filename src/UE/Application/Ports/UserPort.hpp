@@ -9,6 +9,12 @@
 namespace ue
 {
 
+enum View{
+    COMPOSE_SMS,
+    SMS_LIST,
+    DIAL
+};
+
 class UserPort : public IUserPort
 {
 public:

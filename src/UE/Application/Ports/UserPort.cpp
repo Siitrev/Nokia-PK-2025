@@ -50,15 +50,15 @@ void UserPort::showConnected()
 
         if (listIndex.first){
             switch (listIndex.second){
-                case 0: {
+                case COMPOSE_SMS: {
                     handler->composeSms();
                     break;
                 }
-                case 1: {
+                case SMS_LIST: {
                     handler->viewSmsList();
                     break;
                 }
-                case 2: {
+                case DIAL: {
                     handler->startDial();
                     break;
                 }
@@ -132,7 +132,7 @@ void UserPort::composeSms()
     gui.setAcceptCallback([this, &composeMode](){
         auto number = composeMode.getPhoneNumber();
         auto text = composeMode.getSmsText();
-        SmsEntity sms(phoneNumber.value, number.value, text, false);
+        SmsEntity sms(phoneNumber.value, number.value, text, isRead<false>);
         handler->sendSms(sms);
     });
 
