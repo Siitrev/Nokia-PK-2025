@@ -80,7 +80,7 @@ void BaseState::sendCallRequest(common::PhoneNumber number)
     logger.logError("Unexpected: sendCallRequest");
 }
 
-void BaseState::handleCallAccepted()
+void BaseState::handleCallAccepted(common::PhoneNumber from)
 {
     logger.logError("Unexpected: handleCallAccepted");
 }
@@ -90,7 +90,7 @@ void BaseState::cancelCallRequest()
     logger.logError("Unexpected: cancelCallRequest");
 }
 
-void BaseState::handleCallRecipientNotAvailable(common::PhoneNumber from)
+void BaseState::handleCallRecipientNotAvailable()
 {
     logger.logError("Unexpected: handleCallRecipientNotAvailable");
 }
@@ -103,6 +103,26 @@ void BaseState::handleCallDropped()
 void BaseState::handleRedirect()
 {
     logger.logError("Unexpected: handleRedirect");
+}
+
+void BaseState::sendTalkMessage(const std::string& text)
+{
+    logger.logError("Unexpected: sendTalkMessage");
+}
+
+void BaseState::handleCallRequest(common::PhoneNumber)
+{
+    logger.logError("Unexpected: handleCallRequest");
+}
+
+void BaseState::callAccept(common::PhoneNumber)
+{
+    logger.logError("Unexpected: callAccept");
+}
+
+void BaseState::callDrop()
+{
+    logger.logError("Unexpected: callDrop");
 }
 
 }

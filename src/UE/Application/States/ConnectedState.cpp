@@ -71,7 +71,6 @@ void ConnectedState::handleSmsDeliveryFailure(common::PhoneNumber from)
             break;
         }
     }
-
 }
 
 void ConnectedState::startDial()
@@ -88,44 +87,93 @@ void ConnectedState::sendCallRequest(common::PhoneNumber number)
     context.user.showDialing();
 }
 
-void ConnectedState::handleCallAccepted()
+void ConnectedState::handleCallAccepted(common::PhoneNumber from)
 {
     context.timer.stopTimer();
-    context.setState<TalkingState>();
+    context.setState<TalkingState>(from);
 }
 
 void ConnectedState::handleCallDropped()
 {
     logger.logInfo("Call dropped by peer.");
     context.user.showConnected();
+    callTarget = {};
+    callSender = {};
     context.timer.stopTimer();
 }
-
 
 void ConnectedState::cancelCallRequest()
 {
     context.timer.stopTimer();
     context.bts.sendCallDropped(context.user.getPhoneNumber(), callTarget);
+    callTarget = {};
     context.user.showConnected();
 }
 
-void ConnectedState::handleCallRecipientNotAvailable(common::PhoneNumber from)
+void ConnectedState::handleCallRecipientNotAvailable()
 {
-    logger.logInfo("Recipient not available for call from ", from);
+    logger.logInfo("Recipient not available for call from ", callTarget);
     context.timer.stopTimer();
-    context.user.showPartnerNotAvailable();
+    context.user.showPartnerNotAvailable(callTarget);
     context.timer.startRedirectTimer(std::chrono::seconds(3));
 }
 
 void ConnectedState::handleTimeout()
 {
     logger.logInfo("Call timeout – recipient did not answer.");
-    context.bts.sendCallDropped(context.user.getPhoneNumber(), callTarget);
+    if (callTarget.value != 0){
+        context.bts.sendCallDropped(context.user.getPhoneNumber(), callTarget);
+    }
+    else if (callSender.value != 0){
+        context.bts.sendCallDropped(context.user.getPhoneNumber(), callSender);
+    }
+    callTarget = {};
+    callSender = {};
     context.user.showConnected();
 }
 
 void ConnectedState::handleRedirect()
 {
+    context.user.showConnected();
+}
+
+void ConnectedState::handleTalkMessage(common::PhoneNumber from, const std::string& text)
+{
+    logger.logInfo("Error: Should be talking stage.");
+}
+
+void ConnectedState::handleCallRequest(common::PhoneNumber from)
+{
+    auto myNumber = context.user.getPhoneNumber();
+
+    if (callTarget.value != 0){
+        context.bts.sendCallDropped(myNumber, callTarget);
+        context.timer.stopTimer();
+        callTarget = {};
+    }
+    else if (callSender.value != 0){
+        context.bts.sendCallDropped(myNumber, from);
+        return;
+    }
+
+    callSender = from;
+    logger.logInfo("Call request from ", from);
+    context.timer.startTimer(std::chrono::seconds(60));
+    context.user.showCallRequest(from);
+}
+
+void ConnectedState::callAccept(common::PhoneNumber from)
+{
+    context.bts.sendCallAccepted(from);
+    context.timer.stopTimer();
+    context.setState<TalkingState>(from);
+}
+
+void ConnectedState::callDrop()
+{
+    context.timer.stopTimer();
+    context.bts.sendCallDropped(context.user.getPhoneNumber(), callSender);
+    callSender = {};
     context.user.showConnected();
 }
 

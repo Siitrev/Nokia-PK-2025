@@ -5,6 +5,7 @@
 #include "IUeGui.hpp"
 #include "UeGui/ISmsComposeMode.hpp"
 #include "UeGui/IDialMode.hpp"
+#include "UeGui/ICallMode.hpp"
 
 namespace ue
 {
@@ -168,24 +169,53 @@ void UserPort::showDialing()
     });
 }
 
-void UserPort::showTalking()
+void UserPort::showTalking(common::PhoneNumber from)
 {
-    IUeGui::ITextMode& mode = gui.setViewTextMode();
-    mode.setText("Talking...");
-    gui.setRejectCallback([this]() {
+    IUeGui::ICallMode& chat = gui.setCallMode();
+    chat.clearIncomingText();
+
+    gui.setAcceptCallback([this, &chat]() {
+        std::string message = chat.getOutgoingText();
+        if (!message.empty()) {
+            chat.appendIncomingText("You: " + message);
+            handler->sendTalkMessage(message);
+            chat.clearOutgoingText();
+        }
+    });
+
+    gui.setRejectCallback([this,from]() {
         logger.logInfo("User ended the call");
+        handler->callDrop();
     });
 }
 
-void UserPort::showPartnerNotAvailable()
+void UserPort::showPartnerNotAvailable(common::PhoneNumber from)
 {
-    IUeGui::ITextMode& mode = gui.setAlertMode();
-    mode.setText("Partner is not available.");
+    gui.showPeerUserNotAvailable(from);
     gui.setRejectCallback([this]() {
 
     });
     gui.setAcceptCallback([this]() {
 
+    });
+}
+
+void UserPort::displayMessage(common::PhoneNumber from, const std::string& text)
+{
+    IUeGui::ICallMode& chat = gui.setCallMode();
+    chat.appendIncomingText("Peer: " + text);
+}
+
+void UserPort::showCallRequest(common::PhoneNumber from)
+{
+    IUeGui::ITextMode& mode = gui.setAlertMode();
+    mode.setText("Call request ...");
+    gui.setAcceptCallback([this,from]() {
+        handler->callAccept(from);
+    });
+
+    gui.setRejectCallback([this, from]() {
+        handler->callDrop();
     });
 }
 
