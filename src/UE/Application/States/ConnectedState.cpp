@@ -45,7 +45,7 @@ void ConnectedState::sendSms(const SmsEntity& sms)
     auto toPhoneNumber = sms.to;
     auto messageText = sms.text;
 
-    SmsEntity sentSms(fromPhoneNumber, toPhoneNumber, messageText, false);
+    SmsEntity sentSms(fromPhoneNumber, toPhoneNumber, messageText, isRead<false>);
     context.smsDb.save(sentSms);
     context.user.showConnected();
     context.bts.sendSms(sentSms);

@@ -158,6 +158,7 @@ TEST_F(UserPortTestSuite, shallStartDial)
     EXPECT_CALL(guiMock, setDialMode()).WillOnce(ReturnRef(dialModeMock));
     EXPECT_CALL(guiMock, setAcceptCallback(_));
     EXPECT_CALL(guiMock, setRejectCallback(_));
+  
     objectUnderTest.startDial();
 }
 
@@ -170,6 +171,7 @@ TEST_F(UserPortTestSuite, shallShowDialingAndCancel)
         cb();
     }));
     EXPECT_CALL(handlerMock, cancelCallRequest());
+
     objectUnderTest.showDialing();
 }
 
@@ -198,6 +200,7 @@ TEST_F(UserPortTestSuite, shallShowPartnerNotAvailable)
     EXPECT_CALL(guiMock, setRejectCallback(_));
     EXPECT_CALL(guiMock, setAcceptCallback(_));
     objectUnderTest.showPartnerNotAvailable(TO);
+
 }
 
 }

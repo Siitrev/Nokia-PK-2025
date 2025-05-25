@@ -227,11 +227,14 @@ TEST_F(BtsPortTestSuite, shallSendCallRequest)
     common::BinaryMessage msg;
     const common::PhoneNumber from = PHONE_NUMBER;
     const common::PhoneNumber to{123};
+
     EXPECT_CALL(transportMock, sendMessage(_)).WillOnce([&msg](auto param) {
         msg = std::move(param);
         return true;
     });
+
     objectUnderTest.sendCallRequest(from, to);
+
     common::IncomingMessage reader(msg);
     ASSERT_EQ(reader.readMessageId(), common::MessageId::CallRequest);
     ASSERT_EQ(reader.readPhoneNumber(), from);
@@ -244,11 +247,14 @@ TEST_F(BtsPortTestSuite, shallSendCallDropped)
     common::BinaryMessage msg;
     const common::PhoneNumber from = PHONE_NUMBER;
     const common::PhoneNumber to{123};
+
     EXPECT_CALL(transportMock, sendMessage(_)).WillOnce([&msg](auto param) {
         msg = std::move(param);
         return true;
     });
+
     objectUnderTest.sendCallDropped(from, to);
+
     common::IncomingMessage reader(msg);
     ASSERT_EQ(reader.readMessageId(), common::MessageId::CallDropped);
     ASSERT_EQ(reader.readPhoneNumber(), from);
